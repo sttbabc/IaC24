@@ -1,0 +1,36 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description" : "JSON string",
+  "Metadata" : {
+  },
+
+  "Parameters": {
+    "InstanceTypeParameter" : {
+    "Type" : "String",
+    "Default" : "t2.micro",
+    "AllowedValues" : ["t2.micro", "t2.small", "t2.medium"],
+    "Description" : "Enter the instance type (t2.micro, t2.small, or t2.medium)."
+    }
+  },
+    "Resources" : {
+    "Ec2Instance" : {
+    "Type" : "AWS::EC2::Instance",
+    "Properties" : {
+    "InstanceType" : { "Ref" : "InstanceTypeParameter" },
+    "ImageId" : "ami-398de234"
+    }
+    }
+  },
+
+  "Outputs" : {
+    "BackupLoadBalancerDNSName" : {
+      "Description": "The DNSName of the backup load balancer",
+      "Value" : { "Fn::GetAtt" : [ "BackupLoadBalancer", "DNSName" ]},
+      "Condition" : "CreateProdResources"
+    },
+    "InstanceID" : {
+      "Description": "The Instance ID",
+      "Value" : { "Ref" : "EC2Instance" }
+    }
+ }
+}
