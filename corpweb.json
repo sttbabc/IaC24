@@ -1,18 +1,16 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Description" : "JSON string",
-  "Metadata" : {
-  },
-
+  "Description": "CloudFormation stack",
   "Parameters": {
-    "InstanceTypeParameter" : {
-    "Type" : "String",
-    "Default" : "t2.micro",
-    "AllowedValues" : ["t2.micro", "t2.small"],
-    "Description" : "Enter the instance type (t2.micro or t2.small)."
+    "InstanceTypeParameter": {
+      "Type": "String",
+      "Default": "t2.micro",
+      "AllowedValues": ["t2.micro", "t2.small"],
+      "Description": "Enter the instance type (t2.micro or t2.small)."
     },
     "KeyPair": {
-      "Type": "String",
+      "Type": "AWS::EC2::KeyPair::KeyName",
+      "Default": "Iac : one",
       "Description": "server key-pair  for the EC2 instances."
     },
     "YourIp": {
@@ -20,20 +18,21 @@
       "Description": "public IP address in CIDR notation."
     }
   },
-
-    "Resources" : {
-      "Ec2Instance" : {
-      "Type" : "AWS::EC2::VPC",
+  "Resources": {
+    "EngineeringVpc": {
+      "Type": "AWS::EC2::VPC",
       "Properties": {
         "CidrBlock": "10.0.0.0/18",
         "EnableDnsSupport": true,
         "EnableDnsHostnames": true,
         "Tags": [
-          { "Key": "Name", "Value": "EngineeringVpc" }
-          ]
-        }
-      },
-
+          { 
+            "Key": "Name",
+            "Value": "EngineeringVpc" 
+          }
+        ]
+      }
+    },
     "PublicSubnet1": {
       "Type": "AWS::EC2::Subnet",
       "Properties": {
@@ -45,7 +44,6 @@
         ]
       }
     },
-
     "PublicSubnet2": {
       "Type": "AWS::EC2::Subnet",
       "Properties": {
@@ -57,12 +55,11 @@
         ]
       }
     },
-
     "Web1": {
       "Type": "AWS::EC2::Instance",
       "Properties": {
-        "InstanceType": { "Ref": "InstanceType" },
-        "ImageId": "ami-01cc34ab2709337aa",
+        "InstanceType": { "Ref": "InstanceTypeParameter" },
+        "ImageId": "ami-0c7f9161f8491665f",
         "KeyName": { "Ref": "KeyPair" },
         "SubnetId": { "Ref": "PublicSubnet1" },
         "UserData": {
@@ -85,12 +82,11 @@
         ]
       }
     },
-
     "Web2": {
       "Type": "AWS::EC2::Instance",
       "Properties": {
-        "InstanceType": { "Ref": "InstanceType" },
-        "ImageId": "ami-01cc34ab2709337aa",
+        "InstanceType": { "Ref": "InstanceTypeParameter" },
+        "ImageId": "ami-0c7f9161f8491665f",
         "KeyName": { "Ref": "KeyPair" },
         "SubnetId": { "Ref": "PublicSubnet2" },
         "UserData": {
@@ -108,14 +104,11 @@
             ]
           }
         },
-
         "Tags": [
           { "Key": "Name", "Value": "web2" }
         ]
       }
-    }
-  },
-
+    },
     "WebserversSG": {
       "Type": "AWS::EC2::SecurityGroup",
       "Properties": {
@@ -137,7 +130,6 @@
         ]
       }
     },
-
     "EngineeringLB": {
       "Type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
       "Properties": {
@@ -146,11 +138,12 @@
         "SecurityGroups": [{ "Ref": "WebserversSG" }],
         "Scheme": "internet-facing",
         "Tags": [
-          { "Key": "Name", "Value": "EngineeringLB" }
+          { "Key": "Name", "Value":
+
+ "EngineeringLB" }
         ]
       }
     },
-
     "EngineeringWebservers": {
       "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
       "Properties": {
@@ -164,18 +157,8 @@
         "TargetType": "instance",
         "Tags": [
           { "Key": "Name", "Value": "EngineeringWebservers" }
-          ]
-        }
-      },
-
-      "Outputs" : {
-        "InstanceID" : {
-          "Description": "Instance ID",
-          "Value" : { "Ref" : "EC2Instance" }
-        },
-        "WebUrl": {
-          "Description": "Load balancer URL",
-          "Value" : { "Fn::GetAtt" : [ "EngineeringLB", "DNSName" ]}
-        }
+        ]
       }
+    }
+  }
 }
