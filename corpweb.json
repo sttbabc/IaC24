@@ -1,6 +1,3 @@
-// Zachary Babcock
-// SEIS616-01 Spring 2024
-
 {
   "AWSTemplateFormatVersion": "2010-09-09",
   "Description" : "JSON string",
@@ -25,160 +22,160 @@
   },
 
     "Resources" : {
-    "Ec2Instance" : {
-    "Type" : "AWS::EC2::VPC",
-    "Properties": {
-      "CidrBlock": "10.0.0.0/18",
-      "EnableDnsSupport": true,
-      "EnableDnsHostnames": true,
-      "Tags": [
-        { "Key": "Name", "Value": "EngineeringVpc" }
-      ]
-    }
-  },
-
-  "PublicSubnet1": {
-    "Type": "AWS::EC2::Subnet",
-    "Properties": {
-      "VpcId": { "Ref": "EngineeringVpc" },
-      "CidrBlock": "10.0.0.0/24",
-      "MapPublicIpOnLaunch": true,
-      "Tags": [
-        { "Key": "Name", "Value": "PublicSubnet1" }
-      ]
-    }
-  },
-
-  "PublicSubnet2": {
-    "Type": "AWS::EC2::Subnet",
-    "Properties": {
-      "VpcId": { "Ref": "EngineeringVpc" },
-      "CidrBlock": "10.0.1.0/24",
-      "MapPublicIpOnLaunch": true,
-      "Tags": [
-        { "Key": "Name", "Value": "PublicSubnet2" }
-      ]
-    }
-  },
-
-  "Web1": {
-    "Type": "AWS::EC2::Instance",
-    "Properties": {
-      "InstanceType": { "Ref": "InstanceType" },
-      "ImageId": "ami-01cc34ab2709337aa",
-      "KeyName": { "Ref": "KeyPair" },
-      "SubnetId": { "Ref": "PublicSubnet1" },
-      "UserData": {
-        "Fn::Base64": {
-          "Fn::Join": [
-            "",
-            [
-              "#!/bin/bash\n",
-              "yum update -y\n",
-              "yum install -y git httpd php\n",
-              "service httpd start\n",
-              "chkconfig httpd on\n",
-              "aws s3 cp s3://seis665-public/index.php /var/www/html/\n"
-            ]
-          ]
-        }
-      },
-      "Tags": [
-        { "Key": "Name", "Value": "web1" }
-      ]
-    }
-  },
-
-  "Web2": {
-    "Type": "AWS::EC2::Instance",
-    "Properties": {
-      "InstanceType": { "Ref": "InstanceType" },
-      "ImageId": "ami-01cc34ab2709337aa",
-      "KeyName": { "Ref": "KeyPair" },
-      "SubnetId": { "Ref": "PublicSubnet2" },
-      "UserData": {
-        "Fn::Base64": {
-          "Fn::Join": [
-            "",
-            [
-              "#!/bin/bash\n",
-              "yum update -y\n",
-              "yum install -y git httpd php\n",
-              "service httpd start\n",
-              "chkconfig httpd on\n",
-              "aws s3 cp s3://seis665-public/index.php /var/www/html/\n"
-            ]
+      "Ec2Instance" : {
+      "Type" : "AWS::EC2::VPC",
+      "Properties": {
+        "CidrBlock": "10.0.0.0/18",
+        "EnableDnsSupport": true,
+        "EnableDnsHostnames": true,
+        "Tags": [
+          { "Key": "Name", "Value": "EngineeringVpc" }
           ]
         }
       },
 
-      "Tags": [
-        { "Key": "Name", "Value": "web2" }
-      ]
-    }
-  }
-},
-
-"WebserversSG": {
-  "Type": "AWS::EC2::SecurityGroup",
-  "Properties": {
-    "GroupDescription": "Allow inbound traffic",
-    "VpcId": { "Ref": "EngineeringVpc" },
-    "SecurityGroupIngress": [
-      {
-        "IpProtocol": "tcp",
-        "FromPort": 22,
-        "ToPort": 22,
-        "CidrIp": { "Ref": "YourIp" }
-      },
-      {
-        "IpProtocol": "tcp",
-        "FromPort": 80,
-        "ToPort": 80,
-        "CidrIp": "0.0.0.0/0"
+    "PublicSubnet1": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "VpcId": { "Ref": "EngineeringVpc" },
+        "CidrBlock": "10.0.0.0/24",
+        "MapPublicIpOnLaunch": true,
+        "Tags": [
+          { "Key": "Name", "Value": "PublicSubnet1" }
+        ]
       }
-    ]
-  }
-},
+    },
 
-"EngineeringLB": {
-  "Type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
-  "Properties": {
-    "Name": "EngineeringLB",
-    "Subnets": [{ "Ref": "PublicSubnet1" }, { "Ref": "PublicSubnet2" }],
-    "SecurityGroups": [{ "Ref": "WebserversSG" }],
-    "Scheme": "internet-facing",
-    "Tags": [
-      { "Key": "Name", "Value": "EngineeringLB" }
-    ]
-  }
-},
+    "PublicSubnet2": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "VpcId": { "Ref": "EngineeringVpc" },
+        "CidrBlock": "10.0.1.0/24",
+        "MapPublicIpOnLaunch": true,
+        "Tags": [
+          { "Key": "Name", "Value": "PublicSubnet2" }
+        ]
+      }
+    },
 
-"EngineeringWebservers": {
-  "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
-  "Properties": {
-    "Name": "EngineeringWebservers",
-    "Port": 80,
-    "Protocol": "HTTP",
-    "VpcId": { "Ref": "EngineeringVpc" },
-    "HealthCheckPath": "/",
-    "HealthCheckPort": 80,
-    "HealthCheckProtocol": "HTTP",
-    "TargetType": "instance",
-    "Tags": [
-      { "Key": "Name", "Value": "EngineeringWebservers" }
-      ]
+    "Web1": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "InstanceType": { "Ref": "InstanceType" },
+        "ImageId": "ami-01cc34ab2709337aa",
+        "KeyName": { "Ref": "KeyPair" },
+        "SubnetId": { "Ref": "PublicSubnet1" },
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": [
+              "",
+              [
+                "#!/bin/bash\n",
+                "yum update -y\n",
+                "yum install -y git httpd php\n",
+                "service httpd start\n",
+                "chkconfig httpd on\n",
+                "aws s3 cp s3://seis665-public/index.php /var/www/html/\n"
+              ]
+            ]
+          }
+        },
+        "Tags": [
+          { "Key": "Name", "Value": "web1" }
+        ]
+      }
+    },
+
+    "Web2": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "InstanceType": { "Ref": "InstanceType" },
+        "ImageId": "ami-01cc34ab2709337aa",
+        "KeyName": { "Ref": "KeyPair" },
+        "SubnetId": { "Ref": "PublicSubnet2" },
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": [
+              "",
+              [
+                "#!/bin/bash\n",
+                "yum update -y\n",
+                "yum install -y git httpd php\n",
+                "service httpd start\n",
+                "chkconfig httpd on\n",
+                "aws s3 cp s3://seis665-public/index.php /var/www/html/\n"
+              ]
+            ]
+          }
+        },
+
+        "Tags": [
+          { "Key": "Name", "Value": "web2" }
+        ]
+      }
     }
   },
 
-  "Outputs" : {
-    "InstanceID" : {
-      "Description": "Instance ID",
-      "Value" : { "Ref" : "EC2Instance" }
+    "WebserversSG": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "Allow inbound traffic",
+        "VpcId": { "Ref": "EngineeringVpc" },
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": 22,
+            "ToPort": 22,
+            "CidrIp": { "Ref": "YourIp" }
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": 80,
+            "ToPort": 80,
+            "CidrIp": "0.0.0.0/0"
+          }
+        ]
+      }
     },
-    "WebUrl": {
-      "Description": "load balancer name",
-      "Value" : { "Fn::GetAtt" : [ "EngineeringLB", "DNSName" ]}
-    }
- }
+
+    "EngineeringLB": {
+      "Type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
+      "Properties": {
+        "Name": "EngineeringLB",
+        "Subnets": [{ "Ref": "PublicSubnet1" }, { "Ref": "PublicSubnet2" }],
+        "SecurityGroups": [{ "Ref": "WebserversSG" }],
+        "Scheme": "internet-facing",
+        "Tags": [
+          { "Key": "Name", "Value": "EngineeringLB" }
+        ]
+      }
+    },
+
+    "EngineeringWebservers": {
+      "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
+      "Properties": {
+        "Name": "EngineeringWebservers",
+        "Port": 80,
+        "Protocol": "HTTP",
+        "VpcId": { "Ref": "EngineeringVpc" },
+        "HealthCheckPath": "/",
+        "HealthCheckPort": 80,
+        "HealthCheckProtocol": "HTTP",
+        "TargetType": "instance",
+        "Tags": [
+          { "Key": "Name", "Value": "EngineeringWebservers" }
+          ]
+        }
+      },
+
+      "Outputs" : {
+        "InstanceID" : {
+          "Description": "Instance ID",
+          "Value" : { "Ref" : "EC2Instance" }
+        },
+        "WebUrl": {
+          "Description": "Load balancer URL",
+          "Value" : { "Fn::GetAtt" : [ "EngineeringLB", "DNSName" ]}
+        }
+      }
 }
